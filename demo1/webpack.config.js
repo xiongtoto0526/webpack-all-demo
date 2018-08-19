@@ -17,7 +17,8 @@ const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
 module.exports = {
   entry: {
     vender: ['./libs/jquery.js'],
-    main: './js/main.js'
+    main: './js/main.js',
+    main2: './js/main2.js'
   },
   output: {
     filename: '[name].js',
@@ -78,7 +79,7 @@ module.exports = {
     ]
   },
   resolve: {
-    // modules: ['plugin', 'js']
+    extensions: ['*', '.js', '.json']
   },
   devtool: 'source-map',
   devServer: {
@@ -105,7 +106,7 @@ module.exports = {
     }),
 
     new CommonsChunkPlugin({
-      name: 'vender', // 公共代码的chunk命名为 'verder'
+      name: ['chunk', 'vender'], // 公共代码的chunk命名为 'verder'
       filename: '[name].bundle.js' // 生成的文件名为 vender.bundle.js
     })
   ]
