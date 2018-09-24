@@ -4,6 +4,8 @@ const path = require('path');
 // 引入 mini-css-extract-plugin 插件 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+const ExtractTextPlugin = require("extract-text-webpack-plugin")
+
 // 清除dist目录下的文件
 const ClearWebpackPlugin = require('clean-webpack-plugin');
 
@@ -21,7 +23,7 @@ const ParallelUglifyPlugin = require('webpack-parallel-uglify-plugin');
 // 引入 webpack-deep-scope-plugin 优化
 const WebpackDeepScopeAnalysisPlugin = require('webpack-deep-scope-plugin').default;
 
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+// const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
   // 入口文件
@@ -41,7 +43,7 @@ module.exports = {
         use: [
           MiniCssExtractPlugin.loader,
           {
-            loader:'vue-style-loader',
+            loader: 'css-loader',
             options: {}
           },
           {
@@ -74,11 +76,7 @@ module.exports = {
         test: /\.css$/,
         use: [
           MiniCssExtractPlugin.loader,
-          {
-            loader:'vue-style-loader',
-            options: {}
-          },
-          'happypack/loader?id=css-pack'
+          'happypack/loader?id=css-pack',
         ]
       },
       {
@@ -94,12 +92,61 @@ module.exports = {
       },
       {
         test: /\.vue$/,
-        use: ['vue-loader']
+        loader: 'vue-loader',
+        options: {
+          extractCSS: true,
+          loaders: {
+            css: [
+              'vue-style-loader',
+              MiniCssExtractPlugin.loader,
+              'css-loader'
+            ],
+            styl: [
+              'vue-style-loader',
+              MiniCssExtractPlugin.loader,
+              'css-loader',
+              'stylus-loader'
+            ]
+          },
+          postLoaders: {
+            html: 'babel-loader'
+          }
+        }
+      },
+      {
+        test: /\.(gif|jpg|png|woff|svg|eot|ttf)\??.*$/, // 处理图片
+        use: {
+          loader: 'url-loader', // 解决打包css文件中图片路径无法解析的问题
+          options: {
+            // 打包生成图片的名字
+            name: 'img/[name].[contenthash:7].[ext]',
+            limit: 1024
+          }
+        }
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/, // 处理字体
+        use: {
+          loader: 'file-loader',
+          options: {
+            limit: 1024,
+            name: 'fonts/[name].[contenthash:7].[ext]'
+          }
+        }
+      },
+      //媒体文件处理
+      {
+        test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
+        loader: 'url-loader',
+        options: {
+          limit: 40000,
+          name: 'media/[name].[hash:7].[ext]'
+        }
       }
     ]
   },
   resolve: {
-    extensions: ['*', '.js', '.json', '.vue']
+    extensions: ['*', '.js', '.json', '.vue', '.styl']
   },
   devtool: 'cheap-module-eval-source-map',
   devServer: {
@@ -115,13 +162,18 @@ module.exports = {
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   plugins: [
     new HtmlWebpackPlugin({
+      hash: true, //为了开发中js有缓存效果，所以加入hash，这样可以有效避免缓存JS。
       template: './views/index.html' // 模版文件
     }),
     new ClearWebpackPlugin(['dist']),
-
+    /*
     new MiniCssExtractPlugin({
-      filename: '[name].[contenthash:8].css'
+      filename: process.env.NODE_ENV === 'production' ? 'css/[name].[contenthash:8].css' : '[name].css',
+      chunkFilename: process.env.NODE_ENV === 'production' ? 'css/[id].[contenthash:8].css' : '[id].css'
     }),
+    */
+    new ExtractTextPlugin("style.css"),
+    
     /****   使用HappyPack实例化    *****/
     new HappyPack({
       // 用唯一的标识符id来代表当前的HappyPack 处理一类特定的文件
@@ -185,7 +237,9 @@ module.exports = {
         }
       }
     }),
-    new WebpackDeepScopeAnalysisPlugin(),
-    new VueLoaderPlugin()
+    new WebpackDeepScopeAnalysisPlugin()
+
+    // //vue-loader在15之后需要在plugins中引入
+    // new VueLoaderPlugin()
   ]
 };

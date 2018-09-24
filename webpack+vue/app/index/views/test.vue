@@ -1,9 +1,7 @@
-
-<style lang="stylus">
-  
-
+<style lang="stylus" >
+  .app-container 
+    width 200px
 </style>
-
 <template>
   <div class='app-container'>
     <div>
