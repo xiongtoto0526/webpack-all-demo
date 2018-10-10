@@ -27,7 +27,7 @@ module.exports = {
     main: './js/main.js'
   },
   output: {
-    filename: '[name].[contenthash].js',
+    filename: process.env.NODE_ENV === 'production' ? '[name].[contenthash].js' : '[name].js',
     // 将输出的文件都放在dist目录下
     path: path.resolve(__dirname, 'dist')
   },
@@ -99,7 +99,8 @@ module.exports = {
     stats: 'errors-only'
   },
   // mode: 'development', // 开发环境下
-  mode: 'production',
+  // mode: 'production',
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   plugins: [
     new HtmlWebpackPlugin({
       template: './index.html' // 模版文件
@@ -107,7 +108,7 @@ module.exports = {
     new ClearWebpackPlugin(['dist']),
 
     new MiniCssExtractPlugin({
-      filename: '[name].[contenthash:8].css'
+      filename: process.env.NODE_ENV === 'production' ? '[name].[contenthash:8].css' : '[name].css'
     }),
     /****   使用HappyPack实例化    *****/
     new HappyPack({
