@@ -20,9 +20,6 @@ const ParallelUglifyPlugin = require('webpack-parallel-uglify-plugin');
 // 引入 webpack-deep-scope-plugin 优化
 const WebpackDeepScopeAnalysisPlugin = require('webpack-deep-scope-plugin').default;
 
-// 引入 DllReferencePlugin
-const DllReferencePlugin = require('webpack/lib/DllReferencePlugin');
-
 module.exports = {
   // 入口文件
   entry: {
