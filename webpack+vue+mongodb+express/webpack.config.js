@@ -1,7 +1,7 @@
 
 const path = require('path');
 
-const ExtractTextPlugin = require("extract-text-webpack-plugin")
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 // 清除dist目录下的文件
 const ClearWebpackPlugin = require('clean-webpack-plugin');
@@ -20,7 +20,8 @@ const ParallelUglifyPlugin = require('webpack-parallel-uglify-plugin');
 // 引入 webpack-deep-scope-plugin 优化
 const WebpackDeepScopeAnalysisPlugin = require('webpack-deep-scope-plugin').default;
 
-// const VueLoaderPlugin = require('vue-loader/lib/plugin');
+// 引入 DllReferencePlugin
+const DllReferencePlugin = require('webpack/lib/DllReferencePlugin');
 
 module.exports = {
   // 入口文件
@@ -84,7 +85,7 @@ module.exports = {
         test: /\.vue$/,
         loader: 'vue-loader',
         options: {
-          // extractCSS: true,
+          extractCSS: true, // 会把vue中的样式文件提取出来
           loaders: {
             css: ExtractTextPlugin.extract({
               use: 'css-loader',
@@ -156,10 +157,12 @@ module.exports = {
       template: './views/index.html' // 模版文件
     }),
     new ClearWebpackPlugin(['dist']),
+  
     new ExtractTextPlugin({
       filename: process.env.NODE_ENV === 'production' ? '[name].[contenthash:7].css' : 'bundle.css',
       allChunks: true
     }),
+  
     /****   使用HappyPack实例化    *****/
     new HappyPack({
       // 用唯一的标识符id来代表当前的HappyPack 处理一类特定的文件
