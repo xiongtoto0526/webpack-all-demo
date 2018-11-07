@@ -20,6 +20,9 @@ const ParallelUglifyPlugin = require('webpack-parallel-uglify-plugin');
 // 引入 webpack-deep-scope-plugin 优化
 const WebpackDeepScopeAnalysisPlugin = require('webpack-deep-scope-plugin').default;
 
+// 引入 DllReferencePlugin
+const DllReferencePlugin = require('webpack/lib/DllReferencePlugin');
+
 module.exports = {
   // 入口文件
   entry: {
@@ -28,7 +31,7 @@ module.exports = {
   output: {
     filename: process.env.NODE_ENV === 'production' ? '[name].[contenthash].js' : 'bundle.js',
     // 将输出的文件都放在dist目录下
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist/1.0')
   },
   module: {
     rules: [
@@ -139,13 +142,19 @@ module.exports = {
   devtool: 'cheap-module-eval-source-map',
   devServer: {
     port: 8081,
-    host: '0.0.0.0',
+    // host: '0.0.0.0',
     headers: {
       'X-foo': '112233'
     },
     inline: true,
     overlay: true,
-    stats: 'errors-only'
+    stats: 'errors-only',
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:3001',
+        changeOrigin: true  // 是否跨域
+      }
+    }
   },
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   plugins: [
@@ -153,7 +162,7 @@ module.exports = {
       hash: true, //为了开发中js有缓存效果，所以加入hash，这样可以有效避免缓存JS。
       template: './views/index.html' // 模版文件
     }),
-    new ClearWebpackPlugin(['dist']),
+    new ClearWebpackPlugin(['dist/1.0']),
   
     new ExtractTextPlugin({
       filename: process.env.NODE_ENV === 'production' ? '[name].[contenthash:7].css' : 'bundle.css',
@@ -224,6 +233,10 @@ module.exports = {
       'process.env': {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV)
       }
+    }),
+    new DllReferencePlugin({
+      // 映射到json文件上去
+      manifest: require('./dist/components/vendor.manifest.json')
     })
   ]
 };
