@@ -2,7 +2,6 @@
 /*
  定义一个user的Schema
 */
-
 const mongoose = require('./db.js');
 const Schema = mongoose.Schema;
 

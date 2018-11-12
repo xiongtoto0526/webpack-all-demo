@@ -31,7 +31,7 @@ module.exports = {
   output: {
     filename: process.env.NODE_ENV === 'production' ? '[name].[contenthash].js' : 'bundle.js',
     // 将输出的文件都放在dist目录下
-    path: path.resolve(__dirname, 'dist/1.0')
+    path: path.resolve(__dirname, 'dist')
   },
   module: {
     rules: [
