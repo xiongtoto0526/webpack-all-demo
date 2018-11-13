@@ -10,18 +10,20 @@ const app = express();
 app.use((req, res, next) => {
   const urlInfo = parseURL(__dirname, req.url);
   console.log(urlInfo);
-  // 合并文件
-  combineFiles(urlInfo.pathnames, (err, data) => {
-    if (err) {
-      res.writeHead(404);
-      res.end(err.message);
-    } else {
-      res.writeHead(200, {
-        'Content-Type': urlInfo.mime
-      });
-      res.end(data);
-    }
-  });
+  if (urlInfo) {
+    // 合并文件
+    combineFiles(urlInfo.pathnames, (err, data) => {
+      if (err) {
+        res.writeHead(404);
+        res.end(err.message);
+      } else {
+        res.writeHead(200, {
+          'Content-Type': urlInfo.mime
+        });
+        res.end(data);
+      }
+    });
+  }
 });
 
 let MIME = {
@@ -34,20 +36,20 @@ function parseURL(root, url) {
   let base, 
     pastnames,
     separator;
-  if (url.indexOf('??') === -1) {
-    url = url.replace('/', '/??');
-  }
-  separator = url.split('??');
-  base = separator[0];
+  if (url.indexOf('??') > -1) {
+    separator = url.split('??');
+    base = separator[0];
 
-  pathnames = separator[1].split(',').map((value) => {
-    const filepath = path.join(root, base, value);
-    return filepath;
-  });
-  return {
-    mime: MIME[path.extname(pathnames[0])] || 'text/plain',
-    pathnames: pathnames
+    pathnames = separator[1].split(',').map((value) => {
+      const filepath = path.join(root, base, value);
+      return filepath;
+    });
+    return {
+      mime: MIME[path.extname(pathnames[0])] || 'text/plain',
+      pathnames: pathnames
+    }
   }
+  return null;
 };
 
 //合并文件
