@@ -15,6 +15,9 @@ const bodyParser = require("body-parser");
 const fs = require('fs');
 const path = require('path');
 
+// mongoose-morgan
+const morgan = require('mongoose-morgan');
+
 app.use(bodyParser.json());
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -24,6 +27,11 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 10  // 设置 session的有效时间，单位为毫秒，设置有效期为10分钟
   }
+}));
+
+// Logger 添加数据库操作日志记录  https://www.npmjs.com/package/mongoose-morgan
+app.use(morgan({
+  connectionString: 'mongodb://localhost:27017/dataDb'
 }));
 
 // 使用
